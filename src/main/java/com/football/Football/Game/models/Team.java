@@ -1,14 +1,13 @@
 package com.football.Football.Game.models;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-@Entity(name = "leagues")
-public class League {
+@Entity(name = "team")
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -16,11 +15,9 @@ public class League {
 
     private String name;
 
-    @JoinColumn(name = "country_id")
+    @JoinColumn(name = "league_id")
     @ManyToOne
-    private Country country;
+    private League league;
 
     private String slug;
 }
-
-
