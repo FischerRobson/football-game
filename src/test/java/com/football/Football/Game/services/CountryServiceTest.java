@@ -8,13 +8,16 @@ import com.football.Football.Game.models.Country;
 import com.football.Football.Game.repositories.CountryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+@ExtendWith(MockitoExtension.class) // For fix CountryRepository NullPointer
 public class CountryServiceTest {
 
     @Mock
@@ -40,6 +43,7 @@ public class CountryServiceTest {
         mockCountries = Arrays.asList(country1, country2);
     }
 
+    @Test
     public void testCreateCountries() throws Exception {
         when(countryRepository.saveAll(any(List.class))).thenReturn(mockCountries);
 
