@@ -33,11 +33,19 @@ public class PlayerService {
         player.setName(requestPlayer.getName());
 
         Set<Team> teams = new HashSet<>();
-        for (UUID id: requestPlayer.getTeamsId()) {
-            Team team = teamRepository.findById(id).orElseThrow(TeamNotFoundException::new);
-            teams.add(team);
+        if (requestPlayer.getTeamsSlugs().isEmpty()) {
+            for (UUID id: requestPlayer.getTeamsId()) {
+                Team team = teamRepository.findById(id).orElseThrow(TeamNotFoundException::new);
+                teams.add(team);
+            }
+        } else {
+            for (String slug: requestPlayer.getTeamsSlugs()) {
+                Team team = teamRepository.findBySlug(slug).orElseThrow(TeamNotFoundException::new);
+                teams.add(team);
+            }
         }
         player.setTeams(teams);
+
         return player;
     }
 

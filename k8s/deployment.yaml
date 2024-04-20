@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+spec:
+  selector:
+    matchLabels:
+      app: football-game-deployment
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: football-game
+    spec:
+      containers:
+        - name: football-game
+          image: fischernz/football-game:v1
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: postgres-password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: postgres-db
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
