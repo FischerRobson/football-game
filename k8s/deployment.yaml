@@ -2,10 +2,16 @@ apiVersion: apps/v1
 
 kind: Deployment
 
+metadata:
+  name: football-game-deployment
+  labels:
+    app: football-game
+
+
 spec:
   selector:
     matchLabels:
-      app: football-game-deployment
+      app: football-game
   replicas: 3
   template:
     metadata:

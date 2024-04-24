@@ -10,7 +10,7 @@ public class RequestPlayer {
 
     private String name;
 
-    private List<UUID> teamsId;
+    private List<UUID> teamsIds;
 
     private List<String> teamsSlugs;
 

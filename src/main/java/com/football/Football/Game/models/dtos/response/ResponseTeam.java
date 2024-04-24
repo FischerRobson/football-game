@@ -11,7 +11,7 @@ public class ResponseTeam {
 
     private String name;
 
-    private String leagueName;
-
     private String slug;
+
+    private String leagueName;
 }

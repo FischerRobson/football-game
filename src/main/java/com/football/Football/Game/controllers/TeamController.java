@@ -31,6 +31,7 @@ public class TeamController {
 
     @GetMapping("/{leagueSlug}")
     public ResponseEntity findAllByLeague(@PathVariable String leagueSlug) {
+        System.out.println("league slug: " + leagueSlug);
         try {
             List<ResponseTeamByLeague> teams = this.teamService.findTeamsByLeague(leagueSlug);
             return ResponseEntity.status(HttpStatus.OK).body(teams);

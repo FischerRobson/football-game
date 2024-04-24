@@ -12,6 +12,8 @@ public class ResponsePlayer {
 
     private String name;
 
+    private String slug;
+
     private List<ResponseTeam> teams;
 
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-@Entity(name = "team")
+@Entity(name = "teams")
 public class Team {
 
     @Id

@@ -46,9 +46,11 @@ public class TeamService {
     public List<ResponseTeamByLeague> findTeamsByLeague(String leagueSlug) {
 
         Optional<League> leagueExists = this.leagueRepository.findBySlug(leagueSlug);
+        System.out.println(leagueExists.get());
 
         if (leagueExists.isPresent()) {
             Optional<List<Team>> teams = this.teamRepository.findAllByLeagueId(leagueExists.get().getId());
+            System.out.println(teams.get());
             if (teams.isPresent()) {
                 return this.createResponseTeamsByLeague(teams.get());
             }
