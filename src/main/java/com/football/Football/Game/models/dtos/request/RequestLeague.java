@@ -11,4 +11,6 @@ public class RequestLeague {
 
     private UUID countryId;
 
+    private String countryAbbreviation;
+
 }

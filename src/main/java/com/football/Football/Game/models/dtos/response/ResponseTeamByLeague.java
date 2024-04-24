@@ -5,13 +5,11 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class ResponseTeam {
+public class ResponseTeamByLeague {
 
     private UUID id;
 
     private String name;
 
     private String slug;
-
-    private String leagueName;
 }

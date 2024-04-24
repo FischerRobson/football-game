@@ -1,11 +1,14 @@
 package com.football.Football.Game.services;
 
+import com.football.Football.Game.exceptions.InvalidTeamRequestException;
 import com.football.Football.Game.exceptions.LeagueNotFoundException;
 import com.football.Football.Game.exceptions.TeamAlreadyExistsException;
+import com.football.Football.Game.exceptions.TeamNotFoundException;
 import com.football.Football.Game.models.League;
 import com.football.Football.Game.models.Team;
 import com.football.Football.Game.models.dtos.request.RequestTeam;
 import com.football.Football.Game.models.dtos.response.ResponseTeam;
+import com.football.Football.Game.models.dtos.response.ResponseTeamByLeague;
 import com.football.Football.Game.repositories.LeagueRepository;
 import com.football.Football.Game.repositories.TeamRepository;
 import com.football.Football.Game.utils.SlugGenerator;
@@ -40,6 +43,23 @@ public class TeamService {
         return this.createResponseFromTeam(savedTeam);
     }
 
+    public List<ResponseTeamByLeague> findTeamsByLeague(String leagueSlug) {
+
+        Optional<League> leagueExists = this.leagueRepository.findBySlug(leagueSlug);
+        System.out.println(leagueExists.get());
+
+        if (leagueExists.isPresent()) {
+            Optional<List<Team>> teams = this.teamRepository.findAllByLeagueId(leagueExists.get().getId());
+            System.out.println(teams.get());
+            if (teams.isPresent()) {
+                return this.createResponseTeamsByLeague(teams.get());
+            }
+            throw new TeamNotFoundException();
+        }
+
+        throw new LeagueNotFoundException();
+    }
+
     public List<ResponseTeam> listTeams() {
         List<Team> teams = this.teamRepository.findAll();
         List<ResponseTeam> dtos = new ArrayList<>();
@@ -54,21 +74,25 @@ public class TeamService {
     }
 
     private Team createTeamFromRequest(RequestTeam requestTeam) {
-        Team team = new Team();
-        team.setName(requestTeam.getName());
+       try {
+           Team team = new Team();
+           team.setName(requestTeam.getName());
 
-        if (requestTeam.getLeagueSlug().isEmpty()) {
-            League league = this.leagueRepository.findById(requestTeam.getLeagueId())
-                    .orElseThrow(LeagueNotFoundException::new);
-            team.setLeague(league);
-        } else {
-            League league = this.leagueRepository.findBySlug(requestTeam.getLeagueSlug())
-                    .orElseThrow(LeagueNotFoundException::new);
-            team.setLeague(league);
-        }
+           League league;
+           if (requestTeam.getLeagueId() != null) {
+               league = this.leagueRepository.findById(requestTeam.getLeagueId())
+                       .orElseThrow(LeagueNotFoundException::new);
+           } else {
+               league = this.leagueRepository.findBySlug(requestTeam.getLeagueSlug())
+                       .orElseThrow(LeagueNotFoundException::new);
+           }
+           team.setLeague(league);
+           team.setSlug(SlugGenerator.generateSlug(team.getName()));
 
-        team.setSlug(SlugGenerator.generateSlug(team.getName()));
-        return team;
+           return team;
+       } catch (Exception e) {
+           throw new InvalidTeamRequestException();
+       }
     }
 
     private ResponseTeam createResponseFromTeam(Team team) {
@@ -78,5 +102,17 @@ public class TeamService {
         dto.setLeagueName(team.getLeague().getName());
         dto.setSlug(team.getSlug());
         return dto;
+    }
+
+    private List<ResponseTeamByLeague> createResponseTeamsByLeague(List<Team> teams) {
+        List<ResponseTeamByLeague> list = new ArrayList<>();
+        for(Team t: teams) {
+            ResponseTeamByLeague resp = new ResponseTeamByLeague();
+            resp.setId(t.getId());
+            resp.setName(t.getName());
+            resp.setSlug(t.getSlug());
+            list.add(resp);
+        }
+        return list;
     }
 }

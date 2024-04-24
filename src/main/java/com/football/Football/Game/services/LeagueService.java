@@ -1,6 +1,7 @@
 package com.football.Football.Game.services;
 
 import com.football.Football.Game.exceptions.CountryNotFoundException;
+import com.football.Football.Game.exceptions.InvalidLeagueRequestException;
 import com.football.Football.Game.exceptions.LeagueAlreadyExistsException;
 import com.football.Football.Game.models.Country;
 import com.football.Football.Game.models.League;
@@ -39,13 +40,14 @@ public class LeagueService {
     }
 
     public League createLeague(RequestLeague dto) {
-        League league = this.createLeagueFromRequest(dto);
-
-        Optional<League> leagueAlreadyExists = this.leagueRepository.findBySlug(league.getSlug());
+        Optional<League> leagueAlreadyExists =
+                this.leagueRepository.findBySlug(SlugGenerator.generateSlug(dto.getName()));
 
         if (leagueAlreadyExists.isPresent()) {
             throw new LeagueAlreadyExistsException();
         }
+
+        League league = this.createLeagueFromRequest(dto);
 
         return this.leagueRepository.save(league);
     }
@@ -54,15 +56,25 @@ public class LeagueService {
         return this.leagueRepository.findAll();
     }
 
-    private League createLeagueFromRequest(RequestLeague requestLeague) {
-        League league = new League();
-        league.setName(requestLeague.getName());
-        league.setSlug(SlugGenerator.generateSlug(requestLeague.getName()));
+    private League createLeagueFromRequest(RequestLeague requestLeague) throws InvalidLeagueRequestException {
+        try {
+            League league = new League();
+            league.setName(requestLeague.getName());
+            league.setSlug(SlugGenerator.generateSlug(requestLeague.getName()));
 
-        Country country = this.countryRepository.findById(requestLeague.getCountryId())
-                .orElseThrow(CountryNotFoundException::new);
-        league.setCountry(country);
+            Country country;
+            if (requestLeague.getCountryId() != null) {
+                country = this.countryRepository.findById(requestLeague.getCountryId())
+                        .orElseThrow(CountryNotFoundException::new);
+            } else {
+                country = this.countryRepository.findByAbbreviation(requestLeague.getCountryAbbreviation())
+                        .orElseThrow(CountryNotFoundException::new);
+            }
+            league.setCountry(country);
 
-        return league;
+            return league;
+        } catch (Exception e) {
+            throw new InvalidLeagueRequestException();
+        }
     }
 }

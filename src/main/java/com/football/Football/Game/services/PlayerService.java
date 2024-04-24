@@ -8,6 +8,7 @@ import com.football.Football.Game.models.dtos.response.ResponsePlayer;
 import com.football.Football.Game.models.dtos.response.ResponseTeam;
 import com.football.Football.Game.repositories.PlayerRepository;
 import com.football.Football.Game.repositories.TeamRepository;
+import com.football.Football.Game.utils.SlugGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,13 +32,22 @@ public class PlayerService {
     private Player createPlayerFromRequest(RequestPlayer requestPlayer) {
         Player player = new Player();
         player.setName(requestPlayer.getName());
+        player.setSlug(SlugGenerator.generateSlug(requestPlayer.getName()));
 
         Set<Team> teams = new HashSet<>();
-        for (UUID id: requestPlayer.getTeamsId()) {
-            Team team = teamRepository.findById(id).orElseThrow(TeamNotFoundException::new);
-            teams.add(team);
+        if (requestPlayer.getTeamsSlugs().isEmpty()) {
+            for (UUID id: requestPlayer.getTeamsIds()) {
+                Team team = teamRepository.findById(id).orElseThrow(TeamNotFoundException::new);
+                teams.add(team);
+            }
+        } else {
+            for (String slug: requestPlayer.getTeamsSlugs()) {
+                Team team = teamRepository.findBySlug(slug).orElseThrow(TeamNotFoundException::new);
+                teams.add(team);
+            }
         }
         player.setTeams(teams);
+
         return player;
     }
 
@@ -45,6 +55,7 @@ public class PlayerService {
         ResponsePlayer responsePlayer = new ResponsePlayer();
         responsePlayer.setId(player.getId());
         responsePlayer.setName(player.getName());
+        responsePlayer.setSlug(player.getSlug());
 
         List<ResponseTeam> responseTeams = new ArrayList<>();
         for (Team team: player.getTeams()) {
@@ -52,6 +63,7 @@ public class PlayerService {
             responseTeam.setId(team.getId());
             responseTeam.setName(team.getName());
             responseTeam.setLeagueName(team.getLeague().getName());
+            responseTeam.setSlug(team.getSlug());
             responseTeams.add(responseTeam);
         }
         responsePlayer.setTeams(responseTeams);
