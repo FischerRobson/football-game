@@ -46,11 +46,9 @@ public class TeamService {
     public List<ResponseTeamByLeague> findTeamsByLeague(String leagueSlug) {
 
         Optional<League> leagueExists = this.leagueRepository.findBySlug(leagueSlug);
-        System.out.println(leagueExists.get());
 
         if (leagueExists.isPresent()) {
             Optional<List<Team>> teams = this.teamRepository.findAllByLeagueId(leagueExists.get().getId());
-            System.out.println(teams.get());
             if (teams.isPresent()) {
                 return this.createResponseTeamsByLeague(teams.get());
             }
@@ -71,6 +69,14 @@ public class TeamService {
             dto.setLeagueName(t.getLeague().getName());
         }
         return dtos;
+    }
+
+    public int countPlayerByTeam(String teamSlug) {
+        if (this.teamRepository.findBySlug(teamSlug).isEmpty()) {
+            throw new TeamNotFoundException();
+        }
+
+        return this.teamRepository.countPlayersByTeamId(teamSlug);
     }
 
     private Team createTeamFromRequest(RequestTeam requestTeam) {

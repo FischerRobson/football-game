@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface PlayerRepository extends JpaRepository<Player, UUID> {
@@ -17,5 +18,10 @@ public interface PlayerRepository extends JpaRepository<Player, UUID> {
             "GROUP BY p.id " +
             "HAVING COUNT(DISTINCT t.id) = 2", nativeQuery = true)
     List<Player> findPlayersByTeamSlugs(@Param("slugs") List<String> slugs);
+
+    @Query(value = "SELECT * FROM players ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
+    Optional<Player> findRandomPlayer();
+
+    Optional<Player> findBySlug(String slug);
 
 }
