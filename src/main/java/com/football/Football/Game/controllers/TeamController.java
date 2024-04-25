@@ -1,5 +1,7 @@
 package com.football.Football.Game.controllers;
 
+import com.football.Football.Game.models.dtos.request.RequestAddPlayersToTeam;
+import com.football.Football.Game.models.dtos.request.RequestManyTeamsByLeague;
 import com.football.Football.Game.models.dtos.request.RequestTeam;
 import com.football.Football.Game.models.dtos.response.ResponseTeam;
 import com.football.Football.Game.models.dtos.response.ResponseTeamByLeague;
@@ -29,9 +31,28 @@ public class TeamController {
         }
     }
 
+    @PostMapping("/create-many")
+    public ResponseEntity createManyTeamsByLeague(@RequestBody RequestManyTeamsByLeague body) {
+        try {
+            List<ResponseTeamByLeague> teams = this.teamService.createManyTeamsByLeague(body);
+            return ResponseEntity.status(HttpStatus.CREATED).body(teams);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{teamSlug}/add-players")
+    public ResponseEntity addPlayersToTeam(@PathVariable String teamSlug, @RequestBody RequestAddPlayersToTeam body) {
+        try {
+            this.teamService.addPlayersToTeam(teamSlug, body);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/{leagueSlug}")
     public ResponseEntity findAllByLeague(@PathVariable String leagueSlug) {
-        System.out.println("league slug: " + leagueSlug);
         try {
             List<ResponseTeamByLeague> teams = this.teamService.findTeamsByLeague(leagueSlug);
             return ResponseEntity.status(HttpStatus.OK).body(teams);

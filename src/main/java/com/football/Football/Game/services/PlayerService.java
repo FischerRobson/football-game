@@ -31,6 +31,29 @@ public class PlayerService {
         return this.createResponseFromPlayer(savedPlayer);
     }
 
+    public Player createPlayerFromName(String name) {
+        Optional<Player> player = this.playerRepository.findBySlug(SlugGenerator.generateSlug(name));
+        if (player.isEmpty()) {
+            System.out.println("not found in db");
+            Player newPlayer = new Player();
+            newPlayer.setName(name);
+            newPlayer.setSlug(SlugGenerator.generateSlug(name));
+            return this.playerRepository.save(newPlayer);
+        }
+        return player.get();
+    }
+
+    public void addTeamToPlayer(String playerSlug, String teamSlug) {
+        Player player = this.playerRepository.findBySlug(playerSlug)
+                .orElseThrow(PlayerNotFoundException::new);
+
+        Team team = this.teamRepository.findBySlug(teamSlug).orElseThrow(TeamNotFoundException::new);
+
+        player.addTeam(team);
+
+        this.playerRepository.save(player);
+    }
+
     public boolean checkIfPlayerHasTeams(String playerSlug, Set<String> teamsSlugs) {
         Player player = this.playerRepository.findBySlug(playerSlug).orElseThrow(PlayerNotFoundException::new);
         Set<Team> teams = player.getTeams();

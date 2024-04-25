@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public interface TeamRepository extends JpaRepository<Team, UUID> {
 
-    @Query("SELECT COUNT (*) \n" +
+    @Query(value = "SELECT COUNT (*) \n" +
             "FROM teams t\n" +
             "JOIN player_team pt ON t.id = pt.team_id\n" +
-            "WHERE t.slug = :teamSlug")
-    int countPlayersByTeamId(String teamSlug);
+            "WHERE t.slug = :teamSlug", nativeQuery = true)
+    Integer countPlayersByTeamSlug(String teamSlug);
 
     Optional<Team> findBySlug(String slug);
 
