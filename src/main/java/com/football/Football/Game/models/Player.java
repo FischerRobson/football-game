@@ -1,11 +1,10 @@
 package com.football.Football.Game.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,4 +27,11 @@ public class Player {
     Set<Team> teams;
 
     private String slug;
+
+    public void addTeam(Team team) {
+        if (this.teams == null || this.teams.isEmpty()) {
+            this.teams = new HashSet<>();
+        }
+        this.teams.add(team);
+    }
 }

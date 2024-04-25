@@ -5,19 +5,22 @@ import com.football.Football.Game.exceptions.LeagueNotFoundException;
 import com.football.Football.Game.exceptions.TeamAlreadyExistsException;
 import com.football.Football.Game.exceptions.TeamNotFoundException;
 import com.football.Football.Game.models.League;
+import com.football.Football.Game.models.Player;
 import com.football.Football.Game.models.Team;
+import com.football.Football.Game.models.dtos.request.RequestAddPlayersToTeam;
+import com.football.Football.Game.models.dtos.request.RequestManyTeamsByLeague;
 import com.football.Football.Game.models.dtos.request.RequestTeam;
 import com.football.Football.Game.models.dtos.response.ResponseTeam;
 import com.football.Football.Game.models.dtos.response.ResponseTeamByLeague;
 import com.football.Football.Game.repositories.LeagueRepository;
+import com.football.Football.Game.repositories.PlayerRepository;
 import com.football.Football.Game.repositories.TeamRepository;
 import com.football.Football.Game.utils.SlugGenerator;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TeamService {
@@ -27,6 +30,9 @@ public class TeamService {
 
     @Autowired
     LeagueRepository leagueRepository;
+
+    @Autowired
+    PlayerService playerService;
 
     public ResponseTeam createTeam(RequestTeam requestTeam) {
 
@@ -46,11 +52,9 @@ public class TeamService {
     public List<ResponseTeamByLeague> findTeamsByLeague(String leagueSlug) {
 
         Optional<League> leagueExists = this.leagueRepository.findBySlug(leagueSlug);
-        System.out.println(leagueExists.get());
 
         if (leagueExists.isPresent()) {
             Optional<List<Team>> teams = this.teamRepository.findAllByLeagueId(leagueExists.get().getId());
-            System.out.println(teams.get());
             if (teams.isPresent()) {
                 return this.createResponseTeamsByLeague(teams.get());
             }
@@ -58,6 +62,28 @@ public class TeamService {
         }
 
         throw new LeagueNotFoundException();
+    }
+
+    @Transactional
+    public List<ResponseTeamByLeague> createManyTeamsByLeague(RequestManyTeamsByLeague requestManyTeamsByLeague) {
+        League league = this.leagueRepository.findBySlug(requestManyTeamsByLeague.getLeagueSlug())
+                .orElseThrow(LeagueNotFoundException::new);
+
+        List<Team> newTeams = new ArrayList<>();
+
+        for (String s: requestManyTeamsByLeague.getTeamsNames()) {
+            Optional<Team> teamAlreadyExists = this.teamRepository.findBySlug(s);
+            if (teamAlreadyExists.isEmpty()) {
+                Team team = new Team();
+                team.setLeague(league);
+                team.setName(s);
+                team.setSlug(SlugGenerator.generateSlug(s));
+                Team savedTeam = this.teamRepository.save(team);
+                newTeams.add(savedTeam);
+            }
+        }
+
+        return this.createResponseTeamsByLeague(newTeams);
     }
 
     public List<ResponseTeam> listTeams() {
@@ -71,6 +97,29 @@ public class TeamService {
             dto.setLeagueName(t.getLeague().getName());
         }
         return dtos;
+    }
+
+    public int countPlayerByTeam(String teamSlug) {
+        if (this.teamRepository.findBySlug(teamSlug).isEmpty()) {
+            throw new TeamNotFoundException();
+        }
+
+        return this.teamRepository.countPlayersByTeamSlug(teamSlug);
+    }
+
+    @Transactional
+    public void addPlayersToTeam(String teamSlug, RequestAddPlayersToTeam requestAddPlayersToTeam) {
+        Team team = this.teamRepository.findBySlug(teamSlug)
+                .orElseThrow(TeamNotFoundException::new);
+
+        for (String s: requestAddPlayersToTeam.getPlayersSlugs()) {
+            Player player = this.playerService.createPlayerFromName(s);
+            this.playerService.addTeamToPlayer(player.getSlug(), teamSlug);
+        }
+    }
+
+    public void listAllPlayersByTeam(String teamSlug) {
+        // to do
     }
 
     private Team createTeamFromRequest(RequestTeam requestTeam) {
