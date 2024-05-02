@@ -34,7 +34,6 @@ public class PlayerService {
     public Player createPlayerFromName(String name) {
         Optional<Player> player = this.playerRepository.findBySlug(SlugGenerator.generateSlug(name));
         if (player.isEmpty()) {
-            System.out.println("not found in db");
             Player newPlayer = new Player();
             newPlayer.setName(name);
             newPlayer.setSlug(SlugGenerator.generateSlug(name));
@@ -68,6 +67,12 @@ public class PlayerService {
     public Player getRandomPlayer() {
         Optional<Player> player = this.playerRepository.findRandomPlayer();
         return player.get();
+    }
+
+    public List<String> findPlayersNameByTeamsSlug(Set<String> teams) {
+        List<Player> players = this.playerRepository.findPlayersByTeamSlugs(teams, teams.size());
+
+        return players.stream().map(Player::getName).toList();
     }
 
     public ResponsePlayer addTeamsToPlayer(Set<String> teamsSlugs, String playerSlug) {
@@ -128,6 +133,7 @@ public class PlayerService {
             responseTeam.setSlug(team.getSlug());
             responseTeams.add(responseTeam);
         }
+
         responsePlayer.setTeams(responseTeams);
         return responsePlayer;
     }

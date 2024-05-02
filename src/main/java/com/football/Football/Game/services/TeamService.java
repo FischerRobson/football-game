@@ -118,8 +118,8 @@ public class TeamService {
         }
     }
 
-    public void listAllPlayersByTeam(String teamSlug) {
-        // to do
+    public Team findRandomTeam() {
+        return this.teamRepository.findRandomTeam();
     }
 
     private Team createTeamFromRequest(RequestTeam requestTeam) {

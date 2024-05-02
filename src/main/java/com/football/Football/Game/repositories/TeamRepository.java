@@ -20,4 +20,7 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
 
     Optional<List<Team>> findAllByLeagueId(UUID leagueId);
 
+    @Query(value = "SELECT * FROM teams ORDER BY RANDOM() * EXTRACT(EPOCH FROM NOW()) LIMIT 1", nativeQuery = true)
+    Team findRandomTeam();
+
 }
