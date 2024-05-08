@@ -2,14 +2,12 @@ package com.football.Football.Game.controllers;
 
 
 import com.football.Football.Game.enums.GameType;
-import com.football.Football.Game.models.dtos.response.ResponseGuessTeamGame;
+import com.football.Football.Game.models.games.PlayGuessTeamGameStrategy;
 import com.football.Football.Game.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -25,7 +23,17 @@ public class GameController {
             Object game = this.gameService.createGame(GameType.GUESS_TEAM);
             return ResponseEntity.status(HttpStatus.OK).body(game);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getStackTrace());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/play/guess-team")
+    public ResponseEntity createGuessTeamGame(@RequestBody PlayGuessTeamGameStrategy input) {
+        try {
+            Object output = this.gameService.playGame(GameType.GUESS_TEAM, input);
+            return ResponseEntity.status(HttpStatus.OK).body(output);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 

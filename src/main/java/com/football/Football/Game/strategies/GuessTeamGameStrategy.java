@@ -1,11 +1,13 @@
 package com.football.Football.Game.strategies;
 
+import com.football.Football.Game.exceptions.GameNotFoundException;
 import com.football.Football.Game.exceptions.PlayerNotFoundException;
 import com.football.Football.Game.exceptions.TeamNotFoundException;
 import com.football.Football.Game.interfaces.GameStrategy;
 import com.football.Football.Game.models.GuessTeamGame;
 import com.football.Football.Game.models.Team;
 import com.football.Football.Game.models.dtos.response.ResponseGuessTeamGame;
+import com.football.Football.Game.models.games.PlayGuessTeamGameStrategy;
 import com.football.Football.Game.repositories.GuessTeamGameRepository;
 import com.football.Football.Game.services.PlayerService;
 import com.football.Football.Game.services.TeamService;
@@ -14,12 +16,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame> {
+public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame, PlayGuessTeamGameStrategy, String> {
 
     private final TeamService teamService;
     private final PlayerService playerService;
@@ -32,7 +31,6 @@ public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame
         this.playerService = playerService;
         this.guessTeamGameRepository = guessTeamGameRepository;
     }
-
 
     @Override
     public ResponseGuessTeamGame createGame() {
@@ -74,8 +72,20 @@ public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame
     }
 
     @Override
-    public void finishGame() {
+    public String play(PlayGuessTeamGameStrategy play) {
+        GuessTeamGame game = this.guessTeamGameRepository.findById(play.getGameId())
+                .orElseThrow(GameNotFoundException::new);
 
+        if (game.getAnswer().toLowerCase().contains(play.getAnswer().toLowerCase())) {
+            this.finishGame(play.getGameId());
+            return "Correct answer";
+        }
+        return "Wrong answer";
+    }
+
+    @Override
+    public void finishGame(UUID gameId) {
+        this.guessTeamGameRepository.deleteById(gameId);
     }
 
     private ResponseGuessTeamGame createResponseFromGuessTeamGame(GuessTeamGame game) {

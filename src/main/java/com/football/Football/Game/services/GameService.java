@@ -7,8 +7,7 @@ import com.football.Football.Game.strategies.GuessTeamGameStrategy;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+
 
 import java.util.*;
 
@@ -35,6 +34,10 @@ public class GameService {
 
     public Object createGame(GameType gameType) {
         return this.strategies.get(gameType).createGame();
+    }
+
+    public Object playGame(GameType gameType, Object input) {
+        return this.strategies.get(gameType).play(input);
     }
 
 }

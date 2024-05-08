@@ -66,11 +66,17 @@ public class PlayerService {
 
     public Player getRandomPlayer() {
         Optional<Player> player = this.playerRepository.findRandomPlayer();
-        return player.get();
+        return player.orElse(null);
     }
 
     public List<String> findPlayersNameByTeamsSlug(Set<String> teams) {
         List<Player> players = this.playerRepository.findPlayersByTeamSlugs(teams, teams.size());
+
+        return players.stream().map(Player::getName).toList();
+    }
+
+    public List<String> findPlayersNameByTeamSlug(String team) {
+        List<Player> players = this.playerRepository.findPlayersByTeamSlugs(Collections.singleton(team), 1);
 
         return players.stream().map(Player::getName).toList();
     }

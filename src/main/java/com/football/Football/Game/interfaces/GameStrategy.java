@@ -1,7 +1,11 @@
 package com.football.Football.Game.interfaces;
 
-public interface GameStrategy<TOutput> {
-    TOutput createGame();
+import java.util.UUID;
 
-    void finishGame();
+public interface GameStrategy<TGame, TPlayInput, TPlayOutput> {
+    TGame createGame();
+
+    TPlayOutput play(TPlayInput tPlayInput);
+
+    void finishGame(UUID gameId);
 }
