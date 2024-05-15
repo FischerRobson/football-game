@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class PlayGuessTeamGameStrategy {
+public class PlayFindIntrudePlayerGame {
 
     private UUID gameId;
 
