@@ -8,4 +8,6 @@ public interface GameStrategy<TGame, TPlayInput, TPlayOutput> {
     TPlayOutput play(TPlayInput tPlayInput);
 
     void finishGame(UUID gameId);
+
+    void deleteOldGames();
 }

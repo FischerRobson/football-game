@@ -1,13 +1,15 @@
 ## ToDO
 
-[ ] - Increase code coverage
+[ ] - Increase code coverage - MAX PRIORITY!!!
 
 [ ] - Generate Github Actions
 
-[ ] - Create method to find player by teams
+[X] - Create method to find player by teams
 
 [ ] - Fix method `checkIfPlayerHasTeams` to be a GET
 
-[ ] - Create new methods to generate game 
+[X] - Create new methods to generate game 
 
-[ ] - Guess The Team Game: create method to check, finish and then delete game from its table.
+[X] - Guess The Team Game: create method to check, finish and then delete game from its table.
+
+[ ] - Find Intrude Player Game: guarantee that intrude player dont played in random selected team.

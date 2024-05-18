@@ -21,7 +21,7 @@ public interface PlayerRepository extends JpaRepository<Player, UUID> {
             "HAVING COUNT(DISTINCT t.id) = :size", nativeQuery = true)
     List<Player> findPlayersByTeamSlugs(@Param("slugs") Set<String> slugs, int size);
 
-    @Query(value = "SELECT * FROM players ORDER BY RANDOM() LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM players ORDER BY RANDOM() * EXTRACT(EPOCH FROM NOW()) LIMIT 1", nativeQuery = true)
     Optional<Player> findRandomPlayer();
 
     Optional<Player> findBySlug(String slug);

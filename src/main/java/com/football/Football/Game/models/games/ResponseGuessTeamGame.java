@@ -1,4 +1,4 @@
-package com.football.Football.Game.models.dtos.response;
+package com.football.Football.Game.models.games;
 
 import lombok.Data;
 

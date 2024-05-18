@@ -6,19 +6,22 @@ import com.football.Football.Game.exceptions.TeamNotFoundException;
 import com.football.Football.Game.interfaces.GameStrategy;
 import com.football.Football.Game.models.GuessTeamGame;
 import com.football.Football.Game.models.Team;
-import com.football.Football.Game.models.dtos.response.ResponseGuessTeamGame;
-import com.football.Football.Game.models.games.PlayGuessTeamGameStrategy;
+import com.football.Football.Game.models.games.ResponseGuessTeamGame;
+import com.football.Football.Game.models.games.PlayGuessTeamGame;
 import com.football.Football.Game.repositories.GuessTeamGameRepository;
 import com.football.Football.Game.services.PlayerService;
 import com.football.Football.Game.services.TeamService;
+import com.football.Football.Game.utils.Constants;
 import com.football.Football.Game.utils.Randomizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
-public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame, PlayGuessTeamGameStrategy, String> {
+public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame, PlayGuessTeamGame, String> {
 
     private final TeamService teamService;
     private final PlayerService playerService;
@@ -64,7 +67,6 @@ public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame
             game.setPlayersNames(selectedPlayers);
 
             GuessTeamGame savedGame = this.guessTeamGameRepository.save(game);
-            logger.info("Answer for game " + savedGame.getGameId() +": " + savedGame.getAnswer());
             return this.createResponseFromGuessTeamGame(savedGame);
         }
         logger.warn("Please add more players to: " + team.getSlug());
@@ -72,7 +74,7 @@ public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame
     }
 
     @Override
-    public String play(PlayGuessTeamGameStrategy play) {
+    public String play(PlayGuessTeamGame play) {
         GuessTeamGame game = this.guessTeamGameRepository.findById(play.getGameId())
                 .orElseThrow(GameNotFoundException::new);
 
@@ -81,6 +83,14 @@ public class GuessTeamGameStrategy implements GameStrategy<ResponseGuessTeamGame
             return "Correct answer";
         }
         return "Wrong answer";
+    }
+
+    @Override
+    @Scheduled(fixedRate = Constants.TWENTY_MINUTES)
+    public void deleteOldGames() {
+        logger.warn("Deleting old games...");
+        LocalDateTime cutoff = LocalDateTime.now().minusMinutes(20);
+        this.guessTeamGameRepository.deleteByCreatedAtBefore(cutoff);
     }
 
     @Override

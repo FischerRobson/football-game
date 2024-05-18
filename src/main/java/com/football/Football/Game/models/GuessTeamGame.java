@@ -5,7 +5,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,5 +22,8 @@ public class GuessTeamGame {
     private List<String> playersNames;
 
     private String answer;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
 }

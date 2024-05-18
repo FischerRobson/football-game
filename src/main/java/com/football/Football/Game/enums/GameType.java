@@ -1,5 +1,6 @@
 package com.football.Football.Game.enums;
 
 public enum GameType {
-    GUESS_TEAM
+    GUESS_TEAM,
+    FIND_INTRUDER
 }
