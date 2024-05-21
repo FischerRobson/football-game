@@ -53,7 +53,7 @@ public class PlayerService {
         this.playerRepository.save(player);
     }
 
-    public boolean checkIfPlayerHasTeams(String playerSlug, Set<String> teamsSlugs) {
+    public boolean checkIfPlayerHasTeams(String playerSlug, List<String> teamsSlugs) {
         Player player = this.playerRepository.findBySlug(playerSlug).orElseThrow(PlayerNotFoundException::new);
         Set<Team> teams = player.getTeams();
 
@@ -108,16 +108,18 @@ public class PlayerService {
         player.setSlug(SlugGenerator.generateSlug(requestPlayer.getName()));
 
         Set<Team> teams = new HashSet<>();
-        if (requestPlayer.getTeamsSlugs().isEmpty()) {
+        if (requestPlayer.getTeamsIds() != null && !requestPlayer.getTeamsIds().isEmpty()) {
             for (UUID id: requestPlayer.getTeamsIds()) {
                 Team team = teamRepository.findById(id).orElseThrow(TeamNotFoundException::new);
                 teams.add(team);
             }
-        } else {
+        } else if (requestPlayer.getTeamsSlugs() != null && !requestPlayer.getTeamsSlugs().isEmpty()) {
             for (String slug: requestPlayer.getTeamsSlugs()) {
                 Team team = teamRepository.findBySlug(slug).orElseThrow(TeamNotFoundException::new);
                 teams.add(team);
             }
+        } else {
+            teams = null;
         }
         player.setTeams(teams);
 
@@ -131,16 +133,19 @@ public class PlayerService {
         responsePlayer.setSlug(player.getSlug());
 
         List<ResponseTeam> responseTeams = new ArrayList<>();
-        for (Team team: player.getTeams()) {
-            ResponseTeam responseTeam = new ResponseTeam();
-            responseTeam.setId(team.getId());
-            responseTeam.setName(team.getName());
-            responseTeam.setLeagueName(team.getLeague().getName());
-            responseTeam.setSlug(team.getSlug());
-            responseTeams.add(responseTeam);
+
+        if (player.getTeams() != null && !player.getTeams().isEmpty()) {
+            for (Team team: player.getTeams()) {
+                ResponseTeam responseTeam = new ResponseTeam();
+                responseTeam.setId(team.getId());
+                responseTeam.setName(team.getName());
+                responseTeam.setLeagueName(team.getLeague().getName());
+                responseTeam.setSlug(team.getSlug());
+                responseTeams.add(responseTeam);
+            }
+            responsePlayer.setTeams(responseTeams);
         }
 
-        responsePlayer.setTeams(responseTeams);
         return responsePlayer;
     }
 }

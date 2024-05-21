@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .env
+/htmlReport
 
 ### STS ###
 .apt_generated
