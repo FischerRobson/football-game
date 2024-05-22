@@ -19,7 +19,7 @@ public class PlayerController {
     @Autowired
     PlayerService playerService;
 
-    @GetMapping("{teamSlug}")
+    @GetMapping("/team/{teamSlug}")
     public ResponseEntity findByTeam(@PathVariable String teamSlug) {
         try {
             List<String> names = this.playerService.findPlayersNameByTeamSlug(teamSlug);
@@ -39,10 +39,10 @@ public class PlayerController {
         }
     }
 
-    @PostMapping("/{playerSlug}")
-    public ResponseEntity checkIfPlayerHasTeams(@PathVariable String playerSlug, @RequestBody RequestTeamsSlugs body) {
+    @GetMapping("/{playerSlug}")
+    public ResponseEntity checkIfPlayerHasTeams(@PathVariable String playerSlug, @RequestParam List<String> teams) {
         try {
-            Boolean matches = this.playerService.checkIfPlayerHasTeams(playerSlug, body.getTeamsSlugs());
+            Boolean matches = this.playerService.checkIfPlayerHasTeams(playerSlug, teams);
             return ResponseEntity.status(HttpStatus.OK).body(matches);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
