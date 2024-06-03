@@ -1,6 +1,7 @@
 ## ToDO
 
 [ ] - Increase code coverage - MAX PRIORITY!!!
+    - Add tests for repos, strategies.
 
 [ ] - Generate Github Actions
 
